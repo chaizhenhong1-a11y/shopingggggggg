@@ -42,6 +42,12 @@ async function main() {
     },
   });
 
+  await prisma.user.upsert({
+    where: { email: 'admin@mallgo.com' },
+    update: { name: 'Mall Go Administrator', passwordHash, role: 'ADMIN' },
+    create: { name: 'Mall Go Administrator', email: 'admin@mallgo.com', passwordHash, role: 'ADMIN' },
+  });
+
   const store = await prisma.store.upsert({
     where: {
       ownerId: seller.id,

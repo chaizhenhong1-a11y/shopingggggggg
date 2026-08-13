@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../../core/localization/app_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -28,7 +29,7 @@ class CategoryPage extends ConsumerWidget {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
-        title: const Text('商品分类', style: TextStyle(fontWeight: FontWeight.w900)),
+        title: Text(context.tr('商品分类'), style: TextStyle(fontWeight: FontWeight.w900)),
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded)),
           Stack(clipBehavior: Clip.none, children: [
@@ -60,7 +61,7 @@ class CategoryPage extends ConsumerWidget {
                   child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                     Icon(category.$2, color: active ? AppColors.primary : AppColors.muted, size: 23),
                     const SizedBox(height: 5),
-                    Text(category.$1, style: TextStyle(color: active ? AppColors.primary : AppColors.text, fontWeight: active ? FontWeight.w800 : FontWeight.w500)),
+                    Text(context.tr(category.$1), style: TextStyle(color: active ? AppColors.primary : AppColors.text, fontWeight: active ? FontWeight.w800 : FontWeight.w500)),
                   ]),
                 ),
               );
@@ -76,7 +77,7 @@ class CategoryPage extends ConsumerWidget {
               return CustomScrollView(slivers: [
                 SliverToBoxAdapter(child: _CategoryHeader(category: selected, count: filtered.length)),
                 if (filtered.isEmpty)
-                  const SliverFillRemaining(hasScrollBody: false, child: Center(child: Text('此分类暂时没有商品')))
+                  SliverFillRemaining(hasScrollBody: false, child: Center(child: Text(context.tr('此分类暂时没有商品'))))
                 else
                   SliverPadding(
                     padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
@@ -88,8 +89,8 @@ class CategoryPage extends ConsumerWidget {
                   ),
               ]);
             },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (_, __) => Center(child: FilledButton(onPressed: () => ref.invalidate(productsProvider), child: const Text('重新加载'))),
+            loading: () => Center(child: CircularProgressIndicator()),
+            error: (_, __) => Center(child: FilledButton(onPressed: () => ref.invalidate(productsProvider), child: Text(context.tr('重新加载')))),
           ),
         ),
       ]),
@@ -121,9 +122,9 @@ class _CategoryHeader extends StatelessWidget {
         decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFFFF6744), Color(0xFFFFA35C)]), borderRadius: BorderRadius.circular(18)),
         child: Row(children: [
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(category == '全部' ? '全部好物' : '$category精选', style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w900)),
+            Text(category == '全部' ? context.tr('全部好物') : '${context.tr(category)} ${context.tr('精选')}', style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w900)),
             const SizedBox(height: 4),
-            Text('为你找到 $count 件商品', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+            Text(context.tr('为你找到 $count 件商品'), style: const TextStyle(color: Colors.white70, fontSize: 12)),
           ])),
           const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 38),
         ]),
@@ -147,7 +148,7 @@ class _CategoryProductCard extends StatelessWidget {
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(product.name, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 5),
-                Row(children: [const Icon(Icons.star_rounded, color: Colors.amber, size: 13), Text(' ${product.rating} · 已售${product.sold}', style: const TextStyle(fontSize: 9, color: AppColors.muted))]),
+                Row(children: [const Icon(Icons.star_rounded, color: Colors.amber, size: 13), Text(context.tr(' ${product.rating} · 已售${product.sold}'), style: const TextStyle(fontSize: 9, color: AppColors.muted))]),
                 const SizedBox(height: 6),
                 Text('RM ${product.price.toStringAsFixed(0)}', style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w900, fontSize: 15)),
               ]),

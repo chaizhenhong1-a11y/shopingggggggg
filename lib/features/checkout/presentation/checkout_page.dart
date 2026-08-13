@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../../core/localization/app_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -64,12 +65,12 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('确认订单', style: TextStyle(fontWeight: FontWeight.w900)),
+        title: Text(context.tr('确认订单'), style: TextStyle(fontWeight: FontWeight.w900)),
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
       ),
       body: selectedItems.isEmpty
-          ? const Center(child: Text('没有可结算的商品'))
+          ? Center(child: Text(context.tr('没有可结算的商品')))
           : ListView(
               padding: const EdgeInsets.only(bottom: 110),
               children: [
@@ -111,7 +112,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                 ),
                 child: Row(children: [
                   Expanded(child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    const Text('应付金额', style: TextStyle(color: AppColors.muted, fontSize: 11)),
+                    Text(context.tr('应付金额'), style: TextStyle(color: AppColors.muted, fontSize: 11)),
                     Text('RM ${grandTotal.toStringAsFixed(2)}', style: const TextStyle(color: AppColors.primary, fontSize: 21, fontWeight: FontWeight.w900)),
                   ])),
                   FilledButton(
@@ -127,7 +128,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                     style: FilledButton.styleFrom(backgroundColor: AppColors.primary, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13))),
                     child: submitting
                         ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                        : const Text('提交订单', style: TextStyle(fontWeight: FontWeight.w900)),
+                        : Text(context.tr('提交订单'), style: TextStyle(fontWeight: FontWeight.w900)),
                   ),
                 ]),
               ),
@@ -148,7 +149,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     double grandTotal,
   ) async {
     if (receiverName.isEmpty || phone.isEmpty || address.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请填写完整的收货信息')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.tr('请填写完整的收货信息'))));
       return;
     }
     setState(() => submitting = true);
@@ -171,20 +172,20 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
       barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         icon: const Icon(Icons.check_circle_rounded, color: Color(0xFF22A06B), size: 58),
-        title: const Text('订单提交成功', textAlign: TextAlign.center),
-        content: Text('订单号：${order.id}\n共 ${items.length} 件商品', textAlign: TextAlign.center),
+        title: Text(context.tr('订单提交成功'), textAlign: TextAlign.center),
+        content: Text(context.tr('订单号：${order.id}\n共 ${items.length} 件商品'), textAlign: TextAlign.center),
         actionsAlignment: MainAxisAlignment.center,
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('返回首页'),
+            child: Text(context.tr('返回首页')),
           ),
           FilledButton(
             onPressed: () {
               Navigator.pop(dialogContext);
               context.go('/orders');
             },
-            child: const Text('查看订单'),
+            child: Text(context.tr('查看订单')),
           ),
         ],
       ),
@@ -228,7 +229,7 @@ class _OrderProducts extends StatelessWidget {
         color: Colors.white,
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('商品信息', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
+          Text(context.tr('商品信息'), style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
           const SizedBox(height: 14),
           ...items.map((item) => Padding(
             padding: const EdgeInsets.only(bottom: 14),
@@ -254,10 +255,10 @@ class _DeliveryCard extends StatelessWidget {
   const _DeliveryCard({required this.selected, required this.onChanged});
   @override
   Widget build(BuildContext context) => _Section(
-        title: '配送方式',
+        title: context.tr('配送方式'),
         child: Column(children: [
-          RadioListTile<String>(value: 'Standard Delivery', groupValue: selected, onChanged: (value) => onChanged(value!), title: const Text('Standard Delivery'), subtitle: const Text('预计 3–5 个工作日送达'), secondary: const Text('RM 8.90')),
-          RadioListTile<String>(value: 'Express Delivery', groupValue: selected, onChanged: (value) => onChanged(value!), title: const Text('Express Delivery'), subtitle: const Text('预计 1–2 个工作日送达'), secondary: const Text('RM 15.90')),
+          RadioListTile<String>(value: 'Standard Delivery', groupValue: selected, onChanged: (value) => onChanged(value!), title: const Text('Standard Delivery'), subtitle: Text(context.tr('预计 3–5 个工作日送达')), secondary: const Text('RM 8.90')),
+          RadioListTile<String>(value: 'Express Delivery', groupValue: selected, onChanged: (value) => onChanged(value!), title: const Text('Express Delivery'), subtitle: Text(context.tr('预计 1–2 个工作日送达')), secondary: const Text('RM 15.90')),
         ]),
       );
 }
@@ -268,11 +269,11 @@ class _PaymentCard extends StatelessWidget {
   const _PaymentCard({required this.selected, required this.onChanged});
   @override
   Widget build(BuildContext context) => _Section(
-        title: '付款方式',
+        title: context.tr('付款方式'),
         child: Column(children: [
           RadioListTile<PaymentMethod>(value: PaymentMethod.onlineBanking, groupValue: selected, onChanged: (value) => onChanged(value!), title: const Text('Online Banking / FPX'), secondary: const Icon(Icons.account_balance_outlined)),
-          RadioListTile<PaymentMethod>(value: PaymentMethod.card, groupValue: selected, onChanged: (value) => onChanged(value!), title: const Text('信用卡 / Debit Card'), secondary: const Icon(Icons.credit_card_outlined)),
-          RadioListTile<PaymentMethod>(value: PaymentMethod.cashOnDelivery, groupValue: selected, onChanged: (value) => onChanged(value!), title: const Text('货到付款'), secondary: const Icon(Icons.payments_outlined)),
+          RadioListTile<PaymentMethod>(value: PaymentMethod.card, groupValue: selected, onChanged: (value) => onChanged(value!), title: Text(context.tr('信用卡 / Debit Card')), secondary: const Icon(Icons.credit_card_outlined)),
+          RadioListTile<PaymentMethod>(value: PaymentMethod.cashOnDelivery, groupValue: selected, onChanged: (value) => onChanged(value!), title: Text(context.tr('货到付款')), secondary: const Icon(Icons.payments_outlined)),
         ]),
       );
 }
@@ -285,13 +286,13 @@ class _PriceCard extends StatelessWidget {
   const _PriceCard({required this.merchandiseTotal, required this.shippingFee, required this.voucherDiscount, required this.grandTotal});
   @override
   Widget build(BuildContext context) => _Section(
-        title: '金额明细',
+        title: context.tr('金额明细'),
         child: Column(children: [
-          _PriceRow(label: '商品总额', value: 'RM ${merchandiseTotal.toStringAsFixed(2)}'),
-          _PriceRow(label: '运费', value: shippingFee == 0 ? '免运费' : 'RM ${shippingFee.toStringAsFixed(2)}'),
-          if (voucherDiscount > 0) _PriceRow(label: '优惠券', value: '- RM ${voucherDiscount.toStringAsFixed(2)}', highlight: true),
+          _PriceRow(label: context.tr('商品总额'), value: 'RM ${merchandiseTotal.toStringAsFixed(2)}'),
+          _PriceRow(label: context.tr('运费'), value: shippingFee == 0 ? context.tr('免运费') : 'RM ${shippingFee.toStringAsFixed(2)}'),
+          if (voucherDiscount > 0) _PriceRow(label: context.tr('优惠券'), value: '- RM ${voucherDiscount.toStringAsFixed(2)}', highlight: true),
           const Divider(height: 25),
-          _PriceRow(label: '订单总额', value: 'RM ${grandTotal.toStringAsFixed(2)}', total: true),
+          _PriceRow(label: context.tr('订单总额'), value: 'RM ${grandTotal.toStringAsFixed(2)}', total: true),
         ]),
       );
 }

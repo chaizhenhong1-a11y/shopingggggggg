@@ -2,12 +2,15 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../../core/localization/app_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/app.dart';
 import '../../../app/navigation_provider.dart';
 import '../../cart/presentation/cart_provider.dart';
+import '../../favorite/presentation/favorite_provider.dart';
+import '../../auth/presentation/auth_provider.dart';
 import '../../../shared/models/product.dart';
 import 'home_provider.dart';
 
@@ -59,7 +62,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     ),
                   ),
                 ),
-                loading: () => const SliverFillRemaining(
+                loading: () => SliverFillRemaining(
                   hasScrollBody: false,
                   child: Center(child: CircularProgressIndicator()),
                 ),
@@ -68,7 +71,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   child: Center(
                     child: FilledButton(
                       onPressed: () => ref.invalidate(productsProvider),
-                      child: const Text('加载失败，点击重试'),
+                      child: Text(context.tr('加载失败，点击重试')),
                     ),
                   ),
                 ),
@@ -91,9 +94,9 @@ class _Header extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
         child: Column(children: [
           Row(children: [
-            const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('Mall Go', style: TextStyle(fontSize: 25, fontWeight: FontWeight.w900)),
-              Text('发现你的心动好物', style: TextStyle(fontSize: 12, color: AppColors.muted)),
+              Text(context.tr('发现你的心动好物'), style: TextStyle(fontSize: 12, color: AppColors.muted)),
             ]),
             const Spacer(),
             const _CircleIcon(Icons.notifications_none_rounded),
@@ -116,7 +119,7 @@ class _Header extends StatelessWidget {
           const SizedBox(height: 16),
           TextField(
             decoration: InputDecoration(
-              hintText: '搜索商品、品牌或店铺',
+              hintText: context.tr('搜索商品、品牌或店铺'),
               prefixIcon: const Icon(Icons.search_rounded),
               suffixIcon: const Icon(Icons.tune_rounded, color: AppColors.primary),
               filled: true,
@@ -180,10 +183,10 @@ class _PromotionBannerState extends State<_PromotionBanner> {
                 decoration: BoxDecoration(gradient: LinearGradient(colors: [item.$3, item.$4]), borderRadius: BorderRadius.circular(22)),
                 child: Row(children: [
                   Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Text(item.$1, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900)),
-                    Text(item.$2, style: const TextStyle(color: Colors.white)),
+                    Text(context.tr(item.$1), style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900)),
+                    Text(context.tr(item.$2), style: const TextStyle(color: Colors.white)),
                     const SizedBox(height: 14),
-                    const Chip(label: Text('立即抢购', style: TextStyle(fontWeight: FontWeight.bold))),
+                    Chip(label: Text(context.tr('立即抢购'), style: TextStyle(fontWeight: FontWeight.bold))),
                   ])),
                   Icon(item.$5, color: Colors.white, size: 82),
                 ]),
@@ -213,7 +216,7 @@ class _Categories extends ConsumerWidget {
         borderRadius: BorderRadius.circular(17),
         child: Column(children: [
           Container(width: 54, height: 54, decoration: BoxDecoration(color: e.$3, borderRadius: BorderRadius.circular(17)), child: Icon(e.$2, color: AppColors.primary)),
-          const SizedBox(height: 7), Text(e.$1, style: const TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 7), Text(context.tr(e.$1), style: const TextStyle(fontWeight: FontWeight.w600)),
         ]),
       )).toList()),
     );
@@ -223,22 +226,26 @@ class _Categories extends ConsumerWidget {
 class _SectionTitle extends StatelessWidget {
   const _SectionTitle();
   @override
-  Widget build(BuildContext context) => const Padding(
+  Widget build(BuildContext context) => Padding(
         padding: EdgeInsets.fromLTRB(16, 24, 16, 12),
         child: Row(children: [
-          Text('限时好价', style: TextStyle(fontSize: 21, fontWeight: FontWeight.w900)),
+          Text(context.tr('限时好价'), style: TextStyle(fontSize: 21, fontWeight: FontWeight.w900)),
           SizedBox(width: 10), Chip(backgroundColor: Color(0xFF292933), label: Text('02 : 18 : 46', style: TextStyle(color: Colors.white))),
-          Spacer(), Text('查看全部', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+          Spacer(), Text(context.tr('查看全部'), style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
         ]),
       );
 }
 
-class _ProductCard extends StatelessWidget {
+class _ProductCard extends ConsumerWidget {
   final Product product;
   final VoidCallback onTap;
   const _ProductCard({required this.product, required this.onTap});
   @override
-  Widget build(BuildContext context) => Material(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isFavorite = ref.watch(
+      favoriteIdsProvider.select((ids) => ids.contains(product.id)),
+    );
+    return Material(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
         clipBehavior: Clip.antiAlias,
@@ -247,13 +254,43 @@ class _ProductCard extends StatelessWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Expanded(child: Stack(fit: StackFit.expand, children: [
               CachedNetworkImage(imageUrl: product.images.first, fit: BoxFit.cover, placeholder: (_, __) => const ColoredBox(color: Color(0xFFEEEEF1)), errorWidget: (_, __, ___) => const Icon(Icons.image_not_supported)),
-              Positioned(top: 9, right: 9, child: Container(width: 36, height: 36, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle), child: const Icon(Icons.favorite_border, size: 20))),
+              Positioned(
+                top: 9,
+                right: 9,
+                child: IconButton.filled(
+                  tooltip: context.tr(isFavorite ? '取消收藏' : '收藏'),
+                  onPressed: () async {
+                    if (ref.read(authProvider).asData?.value == null) {
+                      if (context.mounted) context.pushNamed('login');
+                      return;
+                    }
+                    try {
+                      await ref.read(favoriteProvider.notifier).toggle(product);
+                    } catch (error) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(error.toString())),
+                        );
+                      }
+                    }
+                  },
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor:
+                        isFavorite ? AppColors.primary : AppColors.text,
+                  ),
+                  icon: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    size: 20,
+                  ),
+                ),
+              ),
             ])),
             Padding(padding: const EdgeInsets.all(11), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(product.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
               Text(product.subtitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11, color: AppColors.muted)),
               const SizedBox(height: 7),
-              Row(children: [const Icon(Icons.star, color: Colors.amber, size: 14), Text('${product.rating}  ·  已售 ${product.sold}', style: const TextStyle(fontSize: 10, color: AppColors.muted))]),
+              Row(children: [const Icon(Icons.star, color: Colors.amber, size: 14), Text(context.tr('${product.rating}  ·  已售 ${product.sold}'), style: const TextStyle(fontSize: 10, color: AppColors.muted))]),
               const SizedBox(height: 7),
               Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
                 Text('RM ${product.price.toStringAsFixed(0)}', style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w900, fontSize: 16)),
@@ -263,4 +300,5 @@ class _ProductCard extends StatelessWidget {
           ]),
         ),
       );
+  }
 }

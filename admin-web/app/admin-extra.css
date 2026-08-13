@@ -1,0 +1,2 @@
+.applicationRow{grid-template-columns:1.4fr 1fr .7fr 1.2fr .7fr 1fr}
+.applicationRow small{display:block;color:#989ca3;margin-top:3px}

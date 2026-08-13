@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../../core/localization/app_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -35,7 +36,7 @@ class _OrderPageState extends ConsumerState<OrderPage>
       ref.read(orderProvider.notifier).refresh();
       final payment = Uri.base.queryParameters['payment'];
       if (payment != null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(payment == 'success' ? 'Stripe 已完成付款，正在更新订单' : '付款已取消')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.tr(payment == 'success' ? 'Stripe 已完成付款，正在更新订单' : '付款已取消'))));
       }
     });
   }
@@ -51,7 +52,7 @@ class _OrderPageState extends ConsumerState<OrderPage>
     final orders = ref.watch(orderProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('我的订单', style: TextStyle(fontWeight: FontWeight.w900)),
+        title: Text(context.tr('我的订单'), style: TextStyle(fontWeight: FontWeight.w900)),
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
         bottom: TabBar(
@@ -60,7 +61,7 @@ class _OrderPageState extends ConsumerState<OrderPage>
           tabAlignment: TabAlignment.start,
           indicatorColor: AppColors.primary,
           labelColor: AppColors.primary,
-          tabs: const [Text('全部'), Text('待付款'), Text('待发货'), Text('待收货'), Text('已完成')]
+          tabs: [Text(context.tr('全部')), Text(context.tr('待付款')), Text(context.tr('待发货')), Text(context.tr('待收货')), Text(context.tr('已完成'))]
               .map((text) => Tab(child: text))
               .toList(),
         ),
@@ -103,7 +104,7 @@ class _OrderCard extends ConsumerWidget {
               const Icon(Icons.receipt_long_outlined, size: 19),
               const SizedBox(width: 7),
               Expanded(child: Text(order.id, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700))),
-              Text(order.statusText, style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w800)),
+              Text(context.tr(order.statusText), style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w800)),
             ]),
             const Divider(height: 24),
             ...order.items.take(2).map((item) => Padding(
@@ -129,25 +130,25 @@ class _OrderCard extends ConsumerWidget {
                   ]),
                 )),
             if (order.items.length > 2)
-              Text('还有 ${order.items.length - 2} 件商品', style: const TextStyle(color: AppColors.muted, fontSize: 11)),
+              Text(context.tr('还有 ${order.items.length - 2} 件商品'), style: const TextStyle(color: AppColors.muted, fontSize: 11)),
             const Divider(height: 22),
             Row(children: [
-              Text('${order.productCount} 件商品', style: const TextStyle(color: AppColors.muted)),
+              Text(context.tr('${order.productCount} 件商品'), style: const TextStyle(color: AppColors.muted)),
               const Spacer(),
-              const Text('实付：'),
+              Text(context.tr('实付：')),
               Text('RM ${order.total.toStringAsFixed(2)}', style: const TextStyle(color: AppColors.primary, fontSize: 17, fontWeight: FontWeight.w900)),
             ]),
             if (order.status == OrderStatus.pendingPayment || order.status == OrderStatus.processing || order.status == OrderStatus.shipping) ...[
               const SizedBox(height: 12),
               Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                 if (order.status == OrderStatus.pendingPayment || order.status == OrderStatus.processing)
-                  OutlinedButton(onPressed: () => _confirmAction(context, ref, title: '取消订单', message: '确定要取消这个订单吗？', action: () => ref.read(orderProvider.notifier).cancel(order.id)), child: const Text('取消订单')),
+                  OutlinedButton(onPressed: () => _confirmAction(context, ref, title: context.tr('取消订单'), message: context.tr('确定要取消这个订单吗？'), action: () => ref.read(orderProvider.notifier).cancel(order.id)), child: Text(context.tr('取消订单'))),
                 if (order.status == OrderStatus.pendingPayment) ...[
                   const SizedBox(width: 8),
-                  FilledButton(onPressed: () => _openStripe(context, ref), child: const Text('Stripe 付款')),
+                  FilledButton(onPressed: () => _openStripe(context, ref), child: Text(context.tr('Stripe 付款'))),
                 ],
                 if (order.status == OrderStatus.shipping)
-                  FilledButton(onPressed: () => _confirmAction(context, ref, title: '确认收货', message: '请确认已经收到商品。', action: () => ref.read(orderProvider.notifier).confirmReceipt(order.id)), child: const Text('确认收货')),
+                  FilledButton(onPressed: () => _confirmAction(context, ref, title: context.tr('确认收货'), message: context.tr('请确认已经收到商品。'), action: () => ref.read(orderProvider.notifier).confirmReceipt(order.id)), child: Text(context.tr('确认收货'))),
               ]),
             ],
           ]),
@@ -155,9 +156,9 @@ class _OrderCard extends ConsumerWidget {
       );
 
   Future<void> _confirmAction(BuildContext context, WidgetRef ref, {required String title, required String message, required Future<void> Function() action}) async {
-    final confirmed = await showDialog<bool>(context: context, builder: (_) => AlertDialog(title: Text(title), content: Text(message), actions: [TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('返回')), FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('确定'))]));
+    final confirmed = await showDialog<bool>(context: context, builder: (_) => AlertDialog(title: Text(title), content: Text(message), actions: [TextButton(onPressed: () => Navigator.pop(context, false), child: Text(context.tr('返回'))), FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(context.tr('确定')))]));
     if (confirmed != true) return;
-    try { await action(); if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$title成功'))); }
+    try { await action(); if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.tr('$title成功')))); }
     catch (error) { if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString()))); }
   }
 
@@ -166,7 +167,7 @@ class _OrderCard extends ConsumerWidget {
       final returnBaseUrl = Uri.base.origin;
       final checkoutUrl = await ref.read(orderProvider.notifier).createStripeCheckout(order.id, returnBaseUrl);
       final opened = await launchUrl(checkoutUrl, webOnlyWindowName: '_self');
-      if (!opened) throw Exception('无法打开 Stripe 支付页面');
+      if (!opened) throw Exception(context.tr('无法打开 Stripe 支付页面'));
     } catch (error) {
       if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
     }
@@ -184,19 +185,19 @@ class _OrderCard extends ConsumerWidget {
           controller: controller,
           padding: const EdgeInsets.all(20),
           children: [
-            const Text('订单详情', style: TextStyle(fontSize: 21, fontWeight: FontWeight.w900)),
+            Text(context.tr('订单详情'), style: TextStyle(fontSize: 21, fontWeight: FontWeight.w900)),
             const SizedBox(height: 18),
-            _DetailRow('订单号', order.id),
-            _DetailRow('订单状态', order.statusText),
-            _DetailRow('收货人', '${order.receiverName}  ${order.phone}'),
-            _DetailRow('收货地址', order.address),
-            _DetailRow('配送方式', order.deliveryMethod),
-            _DetailRow('付款方式', order.paymentMethod),
+            _DetailRow(context.tr('订单号'), order.id),
+            _DetailRow(context.tr('订单状态'), context.tr(order.statusText)),
+            _DetailRow(context.tr('收货人'), '${order.receiverName}  ${order.phone}'),
+            _DetailRow(context.tr('收货地址'), order.address),
+            _DetailRow(context.tr('配送方式'), order.deliveryMethod),
+            _DetailRow(context.tr('付款方式'), context.tr(order.paymentMethod)),
             const Divider(height: 28),
-            _DetailRow('商品金额', 'RM ${order.merchandiseTotal.toStringAsFixed(2)}'),
-            _DetailRow('运费', 'RM ${order.shippingFee.toStringAsFixed(2)}'),
-            _DetailRow('优惠', '- RM ${order.discount.toStringAsFixed(2)}'),
-            _DetailRow('实付金额', 'RM ${order.total.toStringAsFixed(2)}', highlight: true),
+            _DetailRow(context.tr('商品金额'), 'RM ${order.merchandiseTotal.toStringAsFixed(2)}'),
+            _DetailRow(context.tr('运费'), 'RM ${order.shippingFee.toStringAsFixed(2)}'),
+            _DetailRow(context.tr('优惠'), '- RM ${order.discount.toStringAsFixed(2)}'),
+            _DetailRow(context.tr('实付金额'), 'RM ${order.total.toStringAsFixed(2)}', highlight: true),
           ],
         ),
       ),
@@ -222,11 +223,11 @@ class _DetailRow extends StatelessWidget {
 class _EmptyOrders extends StatelessWidget {
   const _EmptyOrders();
   @override
-  Widget build(BuildContext context) => const Center(
+  Widget build(BuildContext context) => Center(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Icon(Icons.receipt_long_outlined, size: 70, color: Colors.black26),
           SizedBox(height: 14),
-          Text('暂时没有订单', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+          Text(context.tr('暂时没有订单'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
         ]),
       );
 }

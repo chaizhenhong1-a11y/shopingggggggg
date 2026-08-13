@@ -1,11 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../../core/localization/app_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/app.dart';
 import '../../../app/navigation_provider.dart';
 import '../../cart/presentation/cart_provider.dart';
+import '../../favorite/presentation/favorite_provider.dart';
+import '../../auth/presentation/auth_provider.dart';
 import '../../../shared/models/product.dart';
 
 class ProductDetailPage extends ConsumerStatefulWidget {
@@ -21,13 +24,6 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
   int imageIndex = 0;
   int variantIndex = 0;
   int quantity = 1;
-  bool favorite = false;
-
-  @override
-  void initState() {
-    super.initState();
-    favorite = widget.product.favorite;
-  }
 
   @override
   void dispose() {
@@ -45,6 +41,9 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
   Widget build(BuildContext context) {
     final product = widget.product;
     final cartCount = ref.watch(cartCountProvider);
+    final favorite = ref.watch(
+      favoriteIdsProvider.select((ids) => ids.contains(product.id)),
+    );
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -55,7 +54,7 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
             surfaceTintColor: Colors.white,
             leading: _AppBarButton(icon: Icons.arrow_back, onTap: () => Navigator.pop(context)),
             actions: [
-              _AppBarButton(icon: Icons.share_outlined, onTap: () => showMessage('分享功能将在后续接入')),
+              _AppBarButton(icon: Icons.share_outlined, onTap: () => showMessage(context.tr('分享功能将在后续接入'))),
               _CartAppBarButton(count: cartCount, onTap: () {
                 ref.read(navigationIndexProvider.notifier).state = 2;
                 context.go('/');
@@ -90,7 +89,21 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
           ),
           SliverToBoxAdapter(
             child: Column(children: [
-              _ProductSummary(product: product, favorite: favorite, onFavorite: () => setState(() => favorite = !favorite)),
+              _ProductSummary(
+                product: product,
+                favorite: favorite,
+                onFavorite: () async {
+                  if (ref.read(authProvider).asData?.value == null) {
+                    context.pushNamed('login');
+                    return;
+                  }
+                  try {
+                    await ref.read(favoriteProvider.notifier).toggle(product);
+                  } catch (error) {
+                    showMessage(error.toString());
+                  }
+                },
+              ),
               const SizedBox(height: 10),
               _StoreCard(product: product),
               const SizedBox(height: 10),
@@ -114,21 +127,21 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
           padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
           decoration: const BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Color(0x16000000), blurRadius: 16, offset: Offset(0, -4))]),
           child: Row(children: [
-            _BottomIcon(icon: Icons.storefront_outlined, label: '店铺', onTap: () => showMessage('即将进入 ${product.sellerName}')),
-            _BottomIcon(icon: Icons.chat_bubble_outline, label: '客服', onTap: () => showMessage('客服聊天将在后续接入')),
+            _BottomIcon(icon: Icons.storefront_outlined, label: context.tr('店铺'), onTap: () => showMessage('${context.tr('即将进入')} ${product.sellerName}')),
+            _BottomIcon(icon: Icons.chat_bubble_outline, label: context.tr('客服'), onTap: () => showMessage(context.tr('客服聊天将在后续接入'))),
             const SizedBox(width: 8),
             Expanded(child: OutlinedButton(
               onPressed: () async {
                 try {
                   await ref.read(cartProvider.notifier).add(product, product.variants[variantIndex], quantity);
-                  showMessage('已加入购物车：${product.variants[variantIndex]} × $quantity');
+                  showMessage('${context.tr('已加入购物车：')}${product.variants[variantIndex]} × $quantity');
                 } catch (error) {
                   showMessage(error.toString());
                   if (mounted) context.pushNamed('login');
                 }
               },
               style: OutlinedButton.styleFrom(foregroundColor: AppColors.primary, side: const BorderSide(color: AppColors.primary), padding: const EdgeInsets.symmetric(vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13))),
-              child: const Text('加入购物车', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: Text(context.tr('加入购物车'), style: TextStyle(fontWeight: FontWeight.bold)),
             )),
             const SizedBox(width: 8),
             Expanded(child: FilledButton(
@@ -143,7 +156,7 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                 }
               },
               style: FilledButton.styleFrom(backgroundColor: AppColors.primary, padding: const EdgeInsets.symmetric(vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13))),
-              child: const Text('立即购买', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: Text(context.tr('立即购买'), style: TextStyle(fontWeight: FontWeight.bold)),
             )),
           ]),
         ),
@@ -213,9 +226,9 @@ class _ProductSummary extends StatelessWidget {
           Row(children: [
             const Icon(Icons.star_rounded, color: Color(0xFFFFB020), size: 19),
             Text(' ${product.rating}', style: const TextStyle(fontWeight: FontWeight.bold)),
-            const Text('  商品评价 326', style: TextStyle(color: AppColors.muted)),
+            Text(context.tr('  商品评价 326'), style: TextStyle(color: AppColors.muted)),
             const Spacer(),
-            Text('已售 ${product.sold}', style: const TextStyle(color: AppColors.muted)),
+            Text(context.tr('已售 ${product.sold}'), style: const TextStyle(color: AppColors.muted)),
           ]),
         ]),
       );
@@ -236,7 +249,7 @@ class _StoreCard extends StatelessWidget {
             const SizedBox(height: 4),
             Row(children: [const Icon(Icons.location_on_outlined, size: 14, color: AppColors.muted), Text(product.sellerLocation, style: const TextStyle(fontSize: 12, color: AppColors.muted))]),
           ])),
-          OutlinedButton(onPressed: () {}, child: const Text('进入店铺')),
+          OutlinedButton(onPressed: () {}, child: Text(context.tr('进入店铺'))),
         ]),
       );
 }
@@ -255,7 +268,7 @@ class _OptionCard extends StatelessWidget {
         color: Colors.white,
         padding: const EdgeInsets.all(18),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('选择规格', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
+          Text(context.tr('选择规格'), style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
           const SizedBox(height: 13),
           Wrap(spacing: 9, runSpacing: 9, children: List.generate(product.variants.length, (index) => ChoiceChip(
             label: Text(product.variants[index]), selected: index == variantIndex, onSelected: (_) => onVariant(index), selectedColor: const Color(0xFFFFE5DE),
@@ -263,7 +276,7 @@ class _OptionCard extends StatelessWidget {
           ))),
           const SizedBox(height: 20),
           Row(children: [
-            const Text('购买数量', style: TextStyle(fontWeight: FontWeight.w700)),
+            Text(context.tr('购买数量'), style: TextStyle(fontWeight: FontWeight.w700)),
             const Spacer(),
             _QuantityButton(icon: Icons.remove, onTap: onMinus),
             SizedBox(width: 42, child: Text('$quantity', textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold))),
@@ -290,15 +303,15 @@ class _Description extends StatelessWidget {
         color: Colors.white,
         padding: const EdgeInsets.all(18),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('商品介绍', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
+          Text(context.tr('商品介绍'), style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
           const SizedBox(height: 12),
           Text(product.description, style: const TextStyle(color: Color(0xFF62626D), height: 1.7)),
           const SizedBox(height: 18),
           const Divider(),
           const SizedBox(height: 10),
-          const _Benefit(icon: Icons.verified_user_outlined, title: '正品保障', subtitle: '平台认证商家，售后无忧'),
-          const _Benefit(icon: Icons.local_shipping_outlined, title: '快速发货', subtitle: '付款后预计 1–2 个工作日发出'),
-          const _Benefit(icon: Icons.assignment_return_outlined, title: '安心退换', subtitle: '符合条件支持 7 天退换货'),
+          _Benefit(icon: Icons.verified_user_outlined, title: context.tr('正品保障'), subtitle: context.tr('平台认证商家，售后无忧')),
+          _Benefit(icon: Icons.local_shipping_outlined, title: context.tr('快速发货'), subtitle: context.tr('付款后预计 1–2 个工作日发出')),
+          _Benefit(icon: Icons.assignment_return_outlined, title: context.tr('安心退换'), subtitle: context.tr('符合条件支持 7 天退换货')),
         ]),
       );
 }

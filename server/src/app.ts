@@ -8,6 +8,10 @@ import { cartRouter } from './routes/cart_routes';
 import { orderRouter } from './routes/order_routes';
 import { addressRouter } from './routes/address_routes';
 import { paymentRouter, stripeWebhook } from './routes/payment_routes';
+import { favoriteRouter } from './routes/favorite_routes';
+import { sellerRouter } from './routes/seller_routes';
+import { sellerApplicationRouter } from './routes/seller_application_routes';
+import { adminRouter } from './routes/admin_routes';
 
 export const app = express();
 
@@ -45,6 +49,10 @@ app.use('/api/cart', cartRouter);
 app.use('/api/orders', orderRouter);
 app.use('/api/addresses', addressRouter);
 app.use('/api/payments', paymentRouter);
+app.use('/api/favorites', favoriteRouter);
+app.use('/api/seller', sellerRouter);
+app.use('/api/seller-applications', sellerApplicationRouter);
+app.use('/api/admin', adminRouter);
 
 app.use((request, response) => {
   response.status(404).json({

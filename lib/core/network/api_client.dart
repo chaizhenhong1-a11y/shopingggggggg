@@ -6,7 +6,7 @@ final apiClientProvider = Provider<ApiClient>((ref) => ApiClient());
 class ApiClient {
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://192.168.1.105:3000/api',
+    defaultValue: 'http://localhost:3000/api',
   );
 
   late final Dio dio;

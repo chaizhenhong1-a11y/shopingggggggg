@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/localization/app_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -48,7 +49,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       return;
     }
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(result.error?.toString() ?? '注册失败')),
+      SnackBar(content: Text(result.error?.toString() ?? context.tr('注册失败'))),
     );
   }
 
@@ -62,7 +63,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('创建账号')),
+      appBar: AppBar(title: Text(context.tr('创建账号'))),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -74,30 +75,30 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text('加入 Mall Go',
+                    Text(context.tr('加入 Mall Go'),
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900)),
                     const SizedBox(height: 8),
-                    const Text('注册后即可管理订单和个人资料',
+                    Text(context.tr('注册后即可管理订单和个人资料'),
                         textAlign: TextAlign.center,
                         style: TextStyle(color: AppColors.muted)),
                     const SizedBox(height: 28),
                     TextFormField(
                       controller: _nameController,
                       textInputAction: TextInputAction.next,
-                      decoration: decoration('姓名', Icons.person_outline),
-                      validator: (value) => (value?.trim().isEmpty ?? true) ? '请输入姓名' : null,
+                      decoration: decoration(context.tr('姓名'), Icons.person_outline),
+                      validator: (value) => (value?.trim().isEmpty ?? true) ? context.tr('请输入姓名') : null,
                     ),
                     const SizedBox(height: 14),
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
-                      decoration: decoration('邮箱', Icons.email_outlined),
+                      decoration: decoration(context.tr('邮箱'), Icons.email_outlined),
                       validator: (value) {
                         final email = value?.trim() ?? '';
-                        if (email.isEmpty) return '请输入邮箱';
-                        if (!email.contains('@')) return '邮箱格式不正确';
+                        if (email.isEmpty) return context.tr('请输入邮箱');
+                        if (!email.contains('@')) return context.tr('邮箱格式不正确');
                         return null;
                       },
                     ),
@@ -106,14 +107,14 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
                       textInputAction: TextInputAction.next,
-                      decoration: decoration('手机号（选填）', Icons.phone_outlined),
+                      decoration: decoration(context.tr('手机号（选填）'), Icons.phone_outlined),
                     ),
                     const SizedBox(height: 14),
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
                       textInputAction: TextInputAction.next,
-                      decoration: decoration('密码', Icons.lock_outline).copyWith(
+                      decoration: decoration(context.tr('密码'), Icons.lock_outline).copyWith(
                         suffixIcon: IconButton(
                           onPressed: () => setState(
                             () => _obscurePassword = !_obscurePassword,
@@ -124,7 +125,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         ),
                       ),
                       validator: (value) {
-                        if ((value ?? '').length < 8) return '密码至少需要 8 个字符';
+                        if ((value ?? '').length < 8) return context.tr('密码至少需要 8 个字符');
                         return null;
                       },
                     ),
@@ -135,8 +136,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       onFieldSubmitted: (_) {
                         if (!loading) _submit();
                       },
-                      decoration: decoration('确认密码', Icons.lock_reset_outlined),
-                      validator: (value) => value != _passwordController.text ? '两次输入的密码不一致' : null,
+                      decoration: decoration(context.tr('确认密码'), Icons.lock_reset_outlined),
+                      validator: (value) => value != _passwordController.text ? context.tr('两次输入的密码不一致') : null,
                     ),
                     const SizedBox(height: 24),
                     FilledButton(
@@ -153,12 +154,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Text('注册并登录'),
+                          : Text(context.tr('注册并登录')),
                     ),
                     const SizedBox(height: 12),
                     TextButton(
                       onPressed: loading ? null : () => context.pop(),
-                      child: const Text('已有账号？返回登录'),
+                      child: Text(context.tr('已有账号？返回登录')),
                     ),
                   ],
                 ),

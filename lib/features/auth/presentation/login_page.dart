@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/localization/app_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -40,7 +41,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       return;
     }
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(result.error?.toString() ?? '登录失败')),
+      SnackBar(content: Text(result.error?.toString() ?? context.tr('登录失败'))),
     );
   }
 
@@ -48,7 +49,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     final loading = ref.watch(authProvider).isLoading;
     return Scaffold(
-      appBar: AppBar(title: const Text('登录')),
+      appBar: AppBar(title: Text(context.tr('登录'))),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -63,11 +64,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     const Icon(Icons.shopping_bag_rounded,
                         size: 72, color: AppColors.primary),
                     const SizedBox(height: 18),
-                    const Text('欢迎回来',
+                    Text(context.tr('欢迎回来'),
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900)),
                     const SizedBox(height: 8),
-                    const Text('登录 Mall Go，继续你的购物旅程',
+                    Text(context.tr('登录 Mall Go，继续你的购物旅程'),
                         textAlign: TextAlign.center,
                         style: TextStyle(color: AppColors.muted)),
                     const SizedBox(height: 32),
@@ -75,15 +76,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       autofillHints: const [AutofillHints.email],
-                      decoration: const InputDecoration(
-                        labelText: '邮箱',
-                        prefixIcon: Icon(Icons.email_outlined),
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: context.tr('邮箱'),
+                        prefixIcon: const Icon(Icons.email_outlined),
+                        border: const OutlineInputBorder(),
                       ),
                       validator: (value) {
                         final email = value?.trim() ?? '';
-                        if (email.isEmpty) return '请输入邮箱';
-                        if (!email.contains('@')) return '邮箱格式不正确';
+                        if (email.isEmpty) return context.tr('请输入邮箱');
+                        if (!email.contains('@')) return context.tr('邮箱格式不正确');
                         return null;
                       },
                     ),
@@ -96,7 +97,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         if (!loading) _submit();
                       },
                       decoration: InputDecoration(
-                        labelText: '密码',
+                        labelText: context.tr('密码'),
                         prefixIcon: const Icon(Icons.lock_outline),
                         border: const OutlineInputBorder(),
                         suffixIcon: IconButton(
@@ -108,7 +109,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               : Icons.visibility_off_outlined),
                         ),
                       ),
-                      validator: (value) => (value?.isEmpty ?? true) ? '请输入密码' : null,
+                      validator: (value) => (value?.isEmpty ?? true) ? context.tr('请输入密码') : null,
                     ),
                     const SizedBox(height: 24),
                     FilledButton(
@@ -125,12 +126,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Text('登录'),
+                          : Text(context.tr('登录')),
                     ),
                     const SizedBox(height: 12),
                     TextButton(
                       onPressed: loading ? null : () => context.push('/register'),
-                      child: const Text('还没有账号？立即注册'),
+                      child: Text(context.tr('还没有账号？立即注册')),
                     ),
                   ],
                 ),

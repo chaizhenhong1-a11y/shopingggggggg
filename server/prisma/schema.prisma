@@ -28,6 +28,12 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum SellerApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
   id           String   @id @default(cuid())
   name         String
@@ -42,6 +48,29 @@ model User {
   cartItems CartItem[]
   addresses Address[]
   orders    Order[]
+  favorites Favorite[]
+  sellerApplication SellerApplication?
+}
+
+model SellerApplication {
+  id             String                  @id @default(cuid())
+  userId         String                  @unique
+  storeName      String
+  contactName    String
+  phone          String
+  address        String
+  businessType   String
+  description    String?
+  status         SellerApplicationStatus @default(PENDING)
+  rejectionReason String?
+  reviewedAt     DateTime?
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([createdAt])
 }
 
 model Store {
@@ -90,10 +119,25 @@ model Product {
   variants   ProductVariant[]
   cartItems  CartItem[]
   orderItems OrderItem[]
+  favorites  Favorite[]
 
   @@index([storeId])
   @@index([categoryId])
   @@index([isActive])
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([productId])
 }
 
 model ProductImage {

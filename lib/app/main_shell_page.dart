@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/localization/app_localization.dart';
 import '../features/cart/presentation/cart_page.dart';
 import '../features/cart/presentation/cart_provider.dart';
 import '../features/category/presentation/category_page.dart';
@@ -30,14 +31,14 @@ class MainShellPage extends ConsumerWidget {
         selectedIndex: currentIndex,
         onDestinationSelected: (index) => ref.read(navigationIndexProvider.notifier).state = index,
         destinations: [
-          const NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home_rounded), label: '首页'),
-          const NavigationDestination(icon: Icon(Icons.grid_view_outlined), selectedIcon: Icon(Icons.grid_view_rounded), label: '分类'),
+          NavigationDestination(icon: const Icon(Icons.home_outlined), selectedIcon: const Icon(Icons.home_rounded), label: context.tr('首页')),
+          NavigationDestination(icon: const Icon(Icons.grid_view_outlined), selectedIcon: const Icon(Icons.grid_view_rounded), label: context.tr('分类')),
           NavigationDestination(
             icon: _CartNavigationIcon(count: cartCount, selected: false),
             selectedIcon: _CartNavigationIcon(count: cartCount, selected: true),
-            label: '购物车',
+            label: context.tr('购物车'),
           ),
-          const NavigationDestination(icon: Icon(Icons.person_outline_rounded), selectedIcon: Icon(Icons.person_rounded), label: '我的'),
+          NavigationDestination(icon: const Icon(Icons.person_outline_rounded), selectedIcon: const Icon(Icons.person_rounded), label: context.tr('我的')),
         ],
       ),
     );
