@@ -1,0 +1,202 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  CUSTOMER
+  SELLER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PROCESSING
+  SHIPPING
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  phone        String?
+  role         UserRole @default(CUSTOMER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  store     Store?
+  cartItems CartItem[]
+  addresses Address[]
+  orders    Order[]
+}
+
+model Store {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  logoUrl     String?
+  location    String?
+  ownerId     String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owner    User      @relation(fields: [ownerId], references: [id])
+  products Product[]
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  icon      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Product[]
+}
+
+model Product {
+  id            String   @id @default(cuid())
+  name          String
+  subtitle      String?
+  description   String
+  price         Decimal  @db.Decimal(10, 2)
+  originalPrice Decimal? @db.Decimal(10, 2)
+  rating        Decimal  @default(0) @db.Decimal(2, 1)
+  soldCount     Int      @default(0)
+  stock         Int      @default(0)
+  isActive      Boolean  @default(true)
+  storeId       String
+  categoryId    String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  store      Store            @relation(fields: [storeId], references: [id])
+  category   Category         @relation(fields: [categoryId], references: [id])
+  images     ProductImage[]
+  variants   ProductVariant[]
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@index([storeId])
+  @@index([categoryId])
+  @@index([isActive])
+}
+
+model ProductImage {
+  id        String @id @default(cuid())
+  imageUrl  String
+  position  Int    @default(0)
+  productId String
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model ProductVariant {
+  id        String   @id @default(cuid())
+  name      String
+  stock     Int      @default(0)
+  price     Decimal? @db.Decimal(10, 2)
+  productId String
+
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@index([productId])
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  quantity  Int      @default(1)
+  selected  Boolean  @default(true)
+  userId    String
+  productId String
+  variantId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant ProductVariant? @relation(fields: [variantId], references: [id])
+
+  @@unique([userId, productId, variantId])
+  @@index([userId])
+  @@index([productId])
+}
+
+model Address {
+  id           String  @id @default(cuid())
+  receiverName String
+  phone        String
+  addressLine  String
+  city         String
+  state        String
+  postalCode   String
+  isDefault    Boolean @default(false)
+  userId       String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Order {
+  id               String        @id @default(cuid())
+  orderNumber      String        @unique
+  status           OrderStatus   @default(PENDING_PAYMENT)
+  paymentStatus    PaymentStatus @default(PENDING)
+  receiverName     String
+  phone            String
+  address          String
+  deliveryMethod   String
+  paymentMethod    String
+  merchandiseTotal Decimal       @db.Decimal(10, 2)
+  shippingFee      Decimal       @db.Decimal(10, 2)
+  discount         Decimal       @default(0) @db.Decimal(10, 2)
+  total            Decimal       @db.Decimal(10, 2)
+  userId           String
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  user  User        @relation(fields: [userId], references: [id])
+  items OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([paymentStatus])
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  productName String
+  variantName String?
+  imageUrl    String?
+  price       Decimal @db.Decimal(10, 2)
+  quantity    Int
+  orderId     String
+  productId   String
+  variantId   String?
+
+  order   Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product         @relation(fields: [productId], references: [id])
+  variant ProductVariant? @relation(fields: [variantId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+}

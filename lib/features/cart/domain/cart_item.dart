@@ -24,4 +24,12 @@ class CartItem {
         quantity: quantity ?? this.quantity,
         selected: selected ?? this.selected,
       );
+
+  factory CartItem.fromJson(Map<String, dynamic> json) => CartItem(
+        id: json['id'].toString(),
+        product: Product.fromJson(Map<String, dynamic>.from(json['product'] as Map)),
+        variant: json['variant']?.toString() ?? '默认规格',
+        quantity: int.tryParse(json['quantity'].toString()) ?? 1,
+        selected: json['selected'] != false,
+      );
 }

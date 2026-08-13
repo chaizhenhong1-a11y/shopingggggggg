@@ -118,19 +118,29 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
             _BottomIcon(icon: Icons.chat_bubble_outline, label: '客服', onTap: () => showMessage('客服聊天将在后续接入')),
             const SizedBox(width: 8),
             Expanded(child: OutlinedButton(
-              onPressed: () {
-                ref.read(cartProvider.notifier).add(product, product.variants[variantIndex], quantity);
-                showMessage('已加入购物车：${product.variants[variantIndex]} × $quantity');
+              onPressed: () async {
+                try {
+                  await ref.read(cartProvider.notifier).add(product, product.variants[variantIndex], quantity);
+                  showMessage('已加入购物车：${product.variants[variantIndex]} × $quantity');
+                } catch (error) {
+                  showMessage(error.toString());
+                  if (mounted) context.pushNamed('login');
+                }
               },
               style: OutlinedButton.styleFrom(foregroundColor: AppColors.primary, side: const BorderSide(color: AppColors.primary), padding: const EdgeInsets.symmetric(vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13))),
               child: const Text('加入购物车', style: TextStyle(fontWeight: FontWeight.bold)),
             )),
             const SizedBox(width: 8),
             Expanded(child: FilledButton(
-              onPressed: () {
-                ref.read(cartProvider.notifier).add(product, product.variants[variantIndex], quantity);
-                ref.read(navigationIndexProvider.notifier).state = 2;
-                context.go('/');
+              onPressed: () async {
+                try {
+                  await ref.read(cartProvider.notifier).add(product, product.variants[variantIndex], quantity);
+                  ref.read(navigationIndexProvider.notifier).state = 2;
+                  if (mounted) context.go('/');
+                } catch (error) {
+                  showMessage(error.toString());
+                  if (mounted) context.pushNamed('login');
+                }
               },
               style: FilledButton.styleFrom(backgroundColor: AppColors.primary, padding: const EdgeInsets.symmetric(vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13))),
               child: const Text('立即购买', style: TextStyle(fontWeight: FontWeight.bold)),

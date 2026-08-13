@@ -68,7 +68,7 @@ class CartPage extends ConsumerWidget {
                   ]),
                   const SizedBox(width: 12),
                   FilledButton(
-                    onPressed: selectedCount == 0 ? null : () => _checkout(context, selectedCount),
+                    onPressed: selectedCount == 0 ? null : () => context.pushNamed('checkout'),
                     style: FilledButton.styleFrom(backgroundColor: AppColors.primary, padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 15)),
                     child: Text('结算 ($selectedCount)', style: const TextStyle(fontWeight: FontWeight.bold)),
                   ),
@@ -76,10 +76,6 @@ class CartPage extends ConsumerWidget {
               ),
             ),
     );
-  }
-
-  void _checkout(BuildContext context, int count) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('已选择 $count 件商品，订单确认页将在下一阶段完成'), behavior: SnackBarBehavior.floating));
   }
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
