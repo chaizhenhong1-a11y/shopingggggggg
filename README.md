@@ -1,17 +1,14 @@
-# shoppingggggggg
+# Mall Go
 
-A new Flutter project.
+Flutter 多商家商城用户端，目前包含首页、分类筛选、商品详情页和完整购物车状态功能。
 
-## Getting Started
+首页、分类、购物车、我的四个主页面由 `IndexedStack` 常驻保存状态，底部导航不会重复跳转或叠加页面。
 
-This project is a starting point for a Flutter application.
+## 启动
 
-A few resources to get you started if this is your first Flutter project:
+```bash
+flutter pub get
+flutter run
+```
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+目前商品和购物车保存在本地 Riverpod 状态中，后续可替换为 Node.js API Repository。

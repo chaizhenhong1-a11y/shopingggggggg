@@ -1,0 +1,120 @@
+import '../../../shared/models/product.dart';
+
+class ProductRepository {
+  Future<List<Product>> getFeaturedProducts() async {
+    await Future<void>.delayed(const Duration(milliseconds: 450));
+    return _products;
+  }
+}
+
+const _products = [
+  Product(
+    id: 'headphone-01',
+    sellerName: 'Audio Official Store',
+    sellerLocation: 'Kuala Lumpur',
+    category: '数码',
+    name: 'Pro X 无线降噪耳机',
+    subtitle: '沉浸式音质 · 40小时续航',
+    description: '旗舰级主动降噪技术，自动识别环境噪音。配合柔软记忆海绵耳罩，长时间佩戴依然舒适。支持快速充电，充电10分钟即可播放5小时。',
+    price: 129,
+    oldPrice: 199,
+    rating: 4.8,
+    sold: 1260,
+    images: [
+      'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1000',
+      'https://images.unsplash.com/photo-1484704849700-f032a568e944?w=1000',
+      'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=1000',
+    ],
+    variants: ['曜石黑', '云雾白', '星空蓝'],
+  ),
+  Product(
+    id: 'shoe-01',
+    sellerName: 'Urban Shoes',
+    sellerLocation: 'Johor Bahru',
+    category: '服饰',
+    name: '轻便休闲运动鞋',
+    subtitle: '柔软透气 · 日常百搭',
+    description: '轻量透气鞋面搭配柔软缓震鞋底，适合通勤、散步和日常穿搭。防滑耐磨大底提供稳定抓地力。',
+    price: 89,
+    oldPrice: 139,
+    rating: 4.7,
+    sold: 892,
+    images: [
+      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1000',
+      'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1000',
+    ],
+    variants: ['黑色 / 40', '白色 / 41', '红色 / 42'],
+  ),
+  Product(
+    id: 'watch-01',
+    sellerName: 'Smart Life',
+    sellerLocation: 'Penang',
+    category: '数码',
+    name: '智能运动手表',
+    subtitle: '健康监测 · 多种运动模式',
+    description: '全天候心率与睡眠监测，多种专业运动模式，高清屏幕并支持消息提醒。一次充电可满足多日使用。',
+    price: 159,
+    oldPrice: 229,
+    rating: 4.9,
+    sold: 2300,
+    images: [
+      'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=1000',
+      'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=1000',
+    ],
+    variants: ['午夜黑', '银灰色', '玫瑰金'],
+  ),
+  Product(
+    id: 'bag-01',
+    sellerName: 'Bag Studio',
+    sellerLocation: 'Selangor',
+    category: '服饰',
+    name: '简约大容量双肩包',
+    subtitle: '防泼水面料 · 通勤旅行',
+    description: '合理分区设计，可收纳笔记本电脑及日常用品。轻盈耐用的防泼水面料适合上班、上学与短途旅行。',
+    price: 69,
+    oldPrice: 109,
+    rating: 4.6,
+    sold: 638,
+    images: [
+      'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=1000',
+      'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?w=1000',
+    ],
+    variants: ['经典黑', '卡其色', '森林绿'],
+  ),
+  Product(
+    id: 'beauty-01',
+    sellerName: 'Beauty Lab',
+    sellerLocation: 'Kuala Lumpur',
+    category: '美妆',
+    name: '清爽保湿护肤套装',
+    subtitle: '温和配方 · 水润不黏腻',
+    description: '包含洁面、精华与保湿乳，温和配方适合日常基础护理，帮助肌肤维持水润清爽状态。',
+    price: 99,
+    oldPrice: 159,
+    rating: 4.7,
+    sold: 960,
+    images: [
+      'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=1000',
+      'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=1000',
+    ],
+    variants: ['清爽型', '滋润型', '敏感肌型'],
+  ),
+  Product(
+    id: 'chair-01',
+    sellerName: 'Living Home',
+    sellerLocation: 'Selangor',
+    category: '家居',
+    name: '北欧舒适休闲椅',
+    subtitle: '简约设计 · 柔软坐感',
+    description: '简约北欧造型搭配舒适软包，适合客厅、卧室与阅读角，为居家空间增添温暖质感。',
+    price: 189,
+    oldPrice: 269,
+    rating: 4.8,
+    sold: 415,
+    images: [
+      'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=1000',
+      'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=1000',
+    ],
+    variants: ['米白色', '深灰色', '焦糖色'],
+  ),
+];
